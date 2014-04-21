@@ -1,0 +1,53 @@
+#include <iostream>
+#include <roboptim/core/differentiable-function.hh>
+
+template <typename T>
+class @FUNCTION_NAME@ : public roboptim::GenericDifferentiableFunction<T>
+{
+public:
+  ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
+  (roboptim::GenericDifferentiableFunction<T>);
+  
+  explicit @FUNCTION_NAME@ (@CONSTANT_LIST_ARG@) throw ();
+
+  void
+  impl_compute (result_t& result, const argument_t& x) const throw ();
+  void
+  impl_gradient (gradient_t& grad, const argument_t& x, size_type)
+  const throw ();
+
+private:
+  @CONSTANT_LIST@
+};
+
+template <typename T>
+@FUNCTION_NAME@<T>::@FUNCTION_NAME@ (@CONSTANT_LIST_ARG@) throw ()
+  : roboptim::GenericDifferentiableFunction<T>
+    (@FUNCTION_INPUT@, @FUNCTION_OUTPUT@, "@FUNCTION_TITLE@"),
+    @CONSTANT_LIST_INITIALIZATION_LIST@
+{}
+
+template <typename T>
+void
+@FUNCTION_NAME@<T>::impl_compute (result_t& result, const argument_t& x)
+  const throw ()
+{
+  @VARIABLE_RENAMING@
+
+  @RESULT@
+}
+
+template <typename T>
+void
+@FUNCTION_NAME@<T>::impl_gradient (gradient_t& grad, const argument_t& x, size_type id)
+  const throw ()
+{
+  @VARIABLE_RENAMING@
+
+  switch (id)
+    {
+      @GRADIENT_CASES@
+    default:
+      assert (0 && "should never happen");
+    }
+}
