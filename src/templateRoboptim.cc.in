@@ -1,0 +1,159 @@
+// compile command: 
+// g++ -ggdb3 -I/usr/include/log4cxx `pkg-config --cflags roboptim-core` src/generatedFiles/@FUNCTION_NAME@.cc `pkg-config --libs roboptim-core` -o bin/@FUNCTION_NAME@
+#include <iostream>
+#include <boost/mpl/vector.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/math/constants/constants.hpp>
+#include <roboptim/core/differentiable-function.hh>
+#include <roboptim/core/linear-function.hh>
+#include <roboptim/core/function/constant.hh>
+#include <roboptim/core/solver.hh>
+#include <roboptim/core/solver-factory.hh>
+#include <roboptim/core/result.hh>
+
+typedef roboptim::Solver <
+  roboptim::GenericDifferentiableFunction< roboptim::EigenMatrixDense>,
+  boost::mpl::vector<
+    roboptim::GenericLinearFunction<roboptim::EigenMatrixDense>,
+    roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense>
+    >
+  >
+  solver_t;
+
+static const double pi = boost::math::constants::pi<double>();
+
+template <typename T>
+class @FUNCTION_NAME@ : public roboptim::GenericDifferentiableFunction<T>
+{
+public:
+  ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
+  (roboptim::GenericDifferentiableFunction<T>);
+  
+  explicit @FUNCTION_NAME@ (@CONSTANT_LIST_ARG@) throw ();
+
+  void
+  impl_compute (result_t& result, const argument_t& x) const throw ();
+  void
+  impl_gradient (gradient_t& grad, const argument_t& x, size_type)
+  const throw ();
+
+private:
+  @CONSTANT_LIST@
+};
+
+template <typename T>
+@FUNCTION_NAME@<T>::@FUNCTION_NAME@ (@CONSTANT_LIST_ARG@) throw ()
+  : roboptim::GenericDifferentiableFunction<T>
+    (@FUNCTION_INPUT@, @FUNCTION_OUTPUT@, "@FUNCTION_TITLE@"),
+    @CONSTANT_LIST_INITIALIZATION_LIST@
+{}
+
+template <typename T>
+void
+@FUNCTION_NAME@<T>::impl_compute (result_t& result, const argument_t& x)
+  const throw ()
+{
+  @VARIABLE_RENAMING@
+
+  @RESULT@
+}
+
+template <typename T>
+void
+@FUNCTION_NAME@<T>::impl_gradient (gradient_t& grad, const argument_t& x, size_type id)
+  const throw ()
+{
+  @VARIABLE_RENAMING@
+
+  switch (id)
+    {
+      @GRADIENT_CASES@
+    default:
+      assert (0 && "should never happen");
+    }
+}
+
+
+int main ()
+{
+  @END_EFFECTOR_GOALS@
+
+  boost::shared_ptr<@FUNCTION_NAME@<roboptim::EigenMatrixDense> > endEffCstr =
+    boost::make_shared<@FUNCTION_NAME@<roboptim::EigenMatrixDense> > (@CONSTANT_LIST_FOR_CSTR@);
+
+  // Create Null Cost Function
+  roboptim::Function::vector_t offset (@FUNCTION_INPUT@);
+  for(std::size_t i=0; i<@FUNCTION_INPUT@; ++i)
+    offset[i] = 0.;
+  roboptim::ConstantFunction cost(offset);
+
+  //Create problem
+  solver_t::problem_t pb (cost);
+
+  // Set bounds for all optimization parameters
+  @ARGUMENT_BOUNDS@
+
+  // Set the starting point.
+  roboptim::Function::vector_t start (@FUNCTION_INPUT@);
+  @INITIAL_VECTOR@
+
+  // Create constraints.
+  @FUNCTION_NAME@<roboptim::EigenMatrixDense>::intervals_t bounds;
+  solver_t::problem_t::scales_t scales;
+  @CONSTRAINT_BOUNDS@
+  @CONSTRAINT_SCALES@
+  pb.addConstraint ( endEffCstr, bounds, scales);
+
+  pb.startingPoint () = start;
+  roboptim::SolverFactory<solver_t> factory ("@SOLVER_NAME@", pb);
+  solver_t& solver = factory ();
+
+  solver_t::result_t res = solver.minimum ();
+
+  
+  std::cout << solver << std::endl;
+
+  // Process the result
+  switch (res.which ())
+    {
+    case solver_t::SOLVER_VALUE:
+      {
+        // Get the result.
+	roboptim::Result& result =
+	  boost::get<roboptim::Result> (res);
+
+        // Display the result.
+	std::cout << "A solution has been found: " << std::endl
+                  << result << std::endl;
+
+        return 0;
+      }
+
+    case solver_t::SOLVER_VALUE_WARNINGS:
+      {
+        // Get the result.
+        roboptim::ResultWithWarnings& result =
+	  boost::get<roboptim::ResultWithWarnings> (res);
+
+        // Display the result.
+	std::cout << "A solution has been found: " << std::endl
+                  << result << std::endl;
+
+        return 0;
+      }
+
+    case solver_t::SOLVER_NO_SOLUTION:
+    case solver_t::SOLVER_ERROR:
+      {
+	std::cout << "A solution should have been found. Failing..."
+                  << std::endl
+                  << boost::get<roboptim::SolverError> (res).what ()
+                  << std::endl;
+
+        return 2;
+      }
+    }
+
+  return 0;
+}
