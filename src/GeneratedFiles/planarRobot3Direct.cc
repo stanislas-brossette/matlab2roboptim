@@ -63,8 +63,8 @@ planarRobot3Direct<T>::impl_compute (result_t& result, const argument_t& x)
 	const double& q_03 = x[2];
 
   
-	result[0] = cos(q_01) - EE_1_1 + cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02) + cos(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02)) - sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01));
-	result[1] = sin(q_01) - EE_1_2 + cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01) + cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)) + sin(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02));
+	result[0] = cos(q_01) - 1.0*EE_1_1 + cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02) + cos(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) - 1.0*sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01));
+	result[1] = sin(q_01) - 1.0*EE_1_2 + cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01) + sin(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) + cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01));
 }
 
 template <typename T>
@@ -80,14 +80,14 @@ planarRobot3Direct<T>::impl_gradient (gradient_t& grad, const argument_t& x, siz
     {
       
 		case 0: 
-			 grad[0] = - sin(q_01) - cos(q_01)*sin(q_02) - cos(q_02)*sin(q_01) - cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)) - sin(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02)); 
-			 grad[1] = - cos(q_01)*sin(q_02) - cos(q_02)*sin(q_01) - cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)) - sin(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02)); 
-			 grad[2] = - cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)) - sin(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02)); 
+			 grad[0] = - 1.0*sin(q_01) - 1.0*cos(q_01)*sin(q_02) - 1.0*cos(q_02)*sin(q_01) - 1.0*sin(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) - 1.0*cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
+			 grad[1] = - 1.0*cos(q_01)*sin(q_02) - 1.0*cos(q_02)*sin(q_01) - 1.0*sin(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) - 1.0*cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
+			 grad[2] = - 1.0*sin(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) - 1.0*cos(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
 			 break;
 		case 1: 
-			 grad[0] = cos(q_01) + cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02) + cos(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02)) - sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
-			 grad[1] = cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02) + cos(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02)) - sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
-			 grad[2] = cos(q_03)*(cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02)) - sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
+			 grad[0] = cos(q_01) + cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02) + cos(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) - 1.0*sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
+			 grad[1] = cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02) + cos(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) - 1.0*sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
+			 grad[2] = cos(q_03)*(cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02)) - 1.0*sin(q_03)*(cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01)); 
 			 break;
     default:
       assert (0 && "should never happen");
@@ -97,7 +97,7 @@ planarRobot3Direct<T>::impl_gradient (gradient_t& grad, const argument_t& x, siz
 
 int main ()
 {
-  double EE_1_1 = 0.38676;double EE_1_2 = 0.33638;
+  double EE_1_1 = 0.96144;double EE_1_2 = 0.78366;
 
   boost::shared_ptr<planarRobot3Direct<roboptim::EigenMatrixDense> > endEffCstr =
     boost::make_shared<planarRobot3Direct<roboptim::EigenMatrixDense> > (EE_1_1, EE_1_2);
@@ -118,9 +118,9 @@ int main ()
 
   // Set the starting point.
   roboptim::Function::vector_t start (3);
-  start[0] = 0.90687;
-	start[1] = 0.24909;
-	start[2] = 0.32501;
+  start[0] = 0.43739;
+	start[1] = 0.85997;
+	start[2] = 0.0088972;
 
   // Create constraints.
   planarRobot3Direct<roboptim::EigenMatrixDense>::intervals_t bounds;

@@ -62,8 +62,8 @@ planarRobot2Direct<T>::impl_compute (result_t& result, const argument_t& x)
 	const double& q_02 = x[1];
 
   
-	result[0] = cos(q_01) - EE_1_1 + cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02);
-	result[1] = sin(q_01) - EE_1_2 + cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01);
+	result[0] = cos(q_01) - 1.0*EE_1_1 + cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02);
+	result[1] = sin(q_01) - 1.0*EE_1_2 + cos(q_01)*sin(q_02) + cos(q_02)*sin(q_01);
 }
 
 template <typename T>
@@ -78,12 +78,12 @@ planarRobot2Direct<T>::impl_gradient (gradient_t& grad, const argument_t& x, siz
     {
       
 		case 0: 
-			 grad[0] = - sin(q_01) - cos(q_01)*sin(q_02) - cos(q_02)*sin(q_01); 
-			 grad[1] = - cos(q_01)*sin(q_02) - cos(q_02)*sin(q_01); 
+			 grad[0] = - 1.0*sin(q_01) - 1.0*cos(q_01)*sin(q_02) - 1.0*cos(q_02)*sin(q_01); 
+			 grad[1] = - 1.0*cos(q_01)*sin(q_02) - 1.0*cos(q_02)*sin(q_01); 
 			 break;
 		case 1: 
-			 grad[0] = cos(q_01) + cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02); 
-			 grad[1] = cos(q_01)*cos(q_02) - sin(q_01)*sin(q_02); 
+			 grad[0] = cos(q_01) + cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02); 
+			 grad[1] = cos(q_01)*cos(q_02) - 1.0*sin(q_01)*sin(q_02); 
 			 break;
     default:
       assert (0 && "should never happen");
@@ -93,7 +93,7 @@ planarRobot2Direct<T>::impl_gradient (gradient_t& grad, const argument_t& x, siz
 
 int main ()
 {
-  double EE_1_1 = 0.38676;double EE_1_2 = 0.33638;
+  double EE_1_1 = 0.96144;double EE_1_2 = 0.78366;
 
   boost::shared_ptr<planarRobot2Direct<roboptim::EigenMatrixDense> > endEffCstr =
     boost::make_shared<planarRobot2Direct<roboptim::EigenMatrixDense> > (EE_1_1, EE_1_2);
@@ -113,8 +113,8 @@ int main ()
 
   // Set the starting point.
   roboptim::Function::vector_t start (2);
-  start[0] = 0.69435;
-	start[1] = 0.41491;
+  start[0] = 0.48129;
+	start[1] = 0.82058;
 
   // Create constraints.
   planarRobot2Direct<roboptim::EigenMatrixDense>::intervals_t bounds;
