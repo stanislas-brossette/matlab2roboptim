@@ -1,0 +1,9 @@
+CPPFLAGS=-ggdb3 `pkg-config --cflags roboptim-core`
+LDFLAGS=`pkg-config --libs roboptim-core`
+
+.PHONY: all compile clean
+.NOTPARALLEL: clean
+
+all: compile
+
+

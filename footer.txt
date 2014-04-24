@@ -1,0 +1,8 @@
+
+compile: $(BINS)
+
+clean:
+	-rm -f $(CLEAN_FILES)
+
+.%.deps:%.cc
+	@$(CXX) -M $(CPPFLAGS) $< > $@
