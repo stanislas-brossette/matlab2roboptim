@@ -380,20 +380,20 @@ int main ()
 {
   // Set the starting point.
   roboptim::Function::vector_t start (10);
-  start[0] = 0.13862;
-	start[1] = 0.14929;
-	start[2] = 0.25751;
-	start[3] = 0.84072;
-	start[4] = 0.25428;
-	start[5] = 0.81428;
-	start[6] = 0.24352;
-	start[7] = 0.92926;
-	start[8] = 0.34998;
-	start[9] = 0.1966;
+  start[0] = 0.5797;
+	start[1] = 0.54986;
+	start[2] = 0.14495;
+	start[3] = 0.85303;
+	start[4] = 0.62206;
+	start[5] = 0.35095;
+	start[6] = 0.51325;
+	start[7] = 0.40181;
+	start[8] = 0.075967;
+	start[9] = 0.23992;
 
-  double EE_1_1 = 0.44559;
-	double EE_1_2 = 0.64631;
-	double EE_1_3 = 0.70936;
+  double EE_1_1 = 0.53834;
+	double EE_1_2 = 0.99613;
+	double EE_1_3 = 0.078176;
 
   boost::shared_ptr<CostFunction<roboptim::EigenMatrixDense> > cost = boost::make_shared<CostFunction<roboptim::EigenMatrixDense> > (EE_1_1, EE_1_2, EE_1_3);
 
@@ -422,21 +422,21 @@ int main ()
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_1, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_1), bounds, scales); 
 	}
 	{
 		EEConstraint_2<roboptim::EigenMatrixDense>::intervals_t bounds;
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_2, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_2), bounds, scales); 
 	}
 	{
 		EEConstraint_3<roboptim::EigenMatrixDense>::intervals_t bounds;
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_3, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_3), bounds, scales); 
 	}
 
   pb.startingPoint () = start;

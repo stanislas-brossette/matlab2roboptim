@@ -1,9 +1,11 @@
 // compile command: 
 // g++ -ggdb3 -I/usr/include/log4cxx `pkg-config --cflags roboptim-core` src/generatedFiles/@FUNCTION_NAME@.cc `pkg-config --libs roboptim-core` -o bin/@FUNCTION_NAME@
 #include <iostream>
+#include <vector>
 #include <boost/mpl/vector.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/timer/timer.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <roboptim/core/differentiable-function.hh>
 #include <roboptim/core/linear-function.hh>
@@ -204,15 +206,17 @@ EEConstraint_2<T>::impl_gradient (gradient_t& grad, const argument_t& x, size_ty
       assert (0 && "should never happen");
     }
 }
-int main ()
+
+void solveFor (const std::vector<double>& initPos, const std::vector<double>& endEffectors)
 {
   // Set the starting point.
-  roboptim::Function::vector_t start (2);
-  start[0] = 0.6551;
-	start[1] = 0.16261;
-
-  double EE_1_1 = 0.44559;
-	double EE_1_2 = 0.64631;
+  roboptim::Function::vector_t start ( initPos.size());
+  for( int i = 0; i<initPos.size(); i++)
+    start[i] = initPos[i];
+  
+  // Set the End Effector Goal Position
+  double EE_1_1 = endEffectors[0];
+	double EE_1_2 = endEffectors[1];
 
   boost::shared_ptr<CostFunction<roboptim::EigenMatrixDense> > cost = boost::make_shared<CostFunction<roboptim::EigenMatrixDense> > (EE_1_1, EE_1_2);
 
@@ -232,24 +236,32 @@ int main ()
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_1, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_1), bounds, scales); 
 	}
 	{
 		EEConstraint_2<roboptim::EigenMatrixDense>::intervals_t bounds;
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_2, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_2), bounds, scales); 
 	}
 
   pb.startingPoint () = start;
   roboptim::SolverFactory<solver_t> factory ("cfsqp", pb);
   solver_t& solver = factory ();
 
+  {
+    boost::timer::auto_cpu_timer t;
+    for( int i = 0; i<100; i++)
+    {
+      solver.solve();
+    }
+  }
+
   solver_t::result_t res = solver.minimum ();
 
   
-  std::cout << solver << std::endl;
+  //std::cout << solver << std::endl;
 
   // Process the result
   switch (res.which ())
@@ -264,7 +276,7 @@ int main ()
 	std::cout << "A solution has been found: " << std::endl
                   << result << std::endl;
 
-        return 0;
+        return;
       }
 
     case solver_t::SOLVER_VALUE_WARNINGS:
@@ -277,7 +289,7 @@ int main ()
 	std::cout << "A solution has been found: " << std::endl
                   << result << std::endl;
 
-        return 0;
+        return;
       }
 
     case solver_t::SOLVER_NO_SOLUTION:
@@ -288,9 +300,916 @@ int main ()
                   << boost::get<roboptim::SolverError> (res).what ()
                   << std::endl;
 
-        return 2;
+        return;
       }
     }
+
+  return;
+}
+
+int main ()
+{
+  	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.24915;
+		endEff[1] = -0.18122;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.90489;
+		endEff[1] = 0.30243;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.51819;
+		endEff[1] = -0.43009;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.43698;
+		endEff[1] = -0.4621;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.26769;
+		endEff[1] = -0.61352;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.020811;
+		endEff[1] = -0.7541;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = -0.17288;
+		endEff[1] = -0.35022;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.53752;
+		endEff[1] = 0.19302;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.46312;
+		endEff[1] = 0.48431;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.73597;
+		start[1] = 0.79468;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.54491;
+		start[1] = 0.68622;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.89363;
+		start[1] = 0.054792;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.30366;
+		start[1] = 0.046192;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.19548;
+		start[1] = 0.72017;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.72175;
+		start[1] = 0.8778;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.58243;
+		start[1] = 0.070684;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.92274;
+		start[1] = 0.80037;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.28595;
+		start[1] = 0.54366;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+	{
+		std::vector<double> start (2);
+		start[0] = 0.98478;
+		start[1] = 0.71568;
+		std::vector<double> endEff (2);
+		endEff[0] = 0.20196;
+		endEff[1] = 0.9052;
+		solveFor( start, endEff);
+	}
+
 
   return 0;
 }

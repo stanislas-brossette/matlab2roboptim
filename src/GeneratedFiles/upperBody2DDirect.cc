@@ -428,17 +428,17 @@ int main ()
 {
   // Set the starting point.
   roboptim::Function::vector_t start (6);
-  start[0] = 0.2551;
-	start[1] = 0.50596;
-	start[2] = 0.69908;
-	start[3] = 0.8909;
-	start[4] = 0.95929;
-	start[5] = 0.54722;
+  start[0] = 0.91065;
+	start[1] = 0.18185;
+	start[2] = 0.2638;
+	start[3] = 0.14554;
+	start[4] = 0.13607;
+	start[5] = 0.86929;
 
-  double EE_1_1 = 0.44559;
-	double EE_1_2 = 0.64631;
-	double EE_2_1 = 0.75469;
-	double EE_2_2 = 0.27603;
+  double EE_1_1 = 0.53834;
+	double EE_1_2 = 0.99613;
+	double EE_2_1 = 0.44268;
+	double EE_2_2 = 0.10665;
 
   boost::shared_ptr<CostFunction<roboptim::EigenMatrixDense> > cost = boost::make_shared<CostFunction<roboptim::EigenMatrixDense> > (EE_1_1, EE_1_2, EE_2_1, EE_2_2);
 
@@ -464,28 +464,28 @@ int main ()
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_1, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_1), bounds, scales); 
 	}
 	{
 		EEConstraint_2<roboptim::EigenMatrixDense>::intervals_t bounds;
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_2, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_2), bounds, scales); 
 	}
 	{
 		EEConstraint_3<roboptim::EigenMatrixDense>::intervals_t bounds;
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_3, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_3), bounds, scales); 
 	}
 	{
 		EEConstraint_4<roboptim::EigenMatrixDense>::intervals_t bounds;
 		solver_t::problem_t::scales_t scales;
 		bounds.push_back(roboptim::Function::makeInterval (0., 0.));
 		scales.push_back(1.);
-		pb.addConstraint ( cstrFunc_4, bounds, scales); 
+		pb.addConstraint (boost::static_pointer_cast<roboptim::GenericDifferentiableFunction<roboptim::EigenMatrixDense> > (cstrFunc_4), bounds, scales); 
 	}
 
   pb.startingPoint () = start;
