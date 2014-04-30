@@ -1,5 +1,5 @@
-CPPFLAGS=-ggdb3 `pkg-config --cflags roboptim-core`
-LDFLAGS=`pkg-config --libs roboptim-core`
+CPPFLAGS=-ggdb3 -DNDEBUG -O3 `pkg-config --cflags roboptim-core`
+LDFLAGS=`pkg-config --libs roboptim-core` -lboost_system -lboost_timer
 
 .PHONY: all compile clean
 .NOTPARALLEL: clean
