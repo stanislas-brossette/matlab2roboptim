@@ -1,0 +1,42 @@
+# -*- Makefile -*-
+VPATH=@SRC_DIR@/src/GeneratedFiles/
+BUILD_DIR=@BUILD_DIR@
+SRC_DIR=@SRC_DIR@
+CPPFLAGS=@CPPFLAGS@ -ggdb3 `pkg-config --cflags roboptim-core`
+LDFLAGS=@LDFLAGS@ `pkg-config --libs roboptim-core`
+
+PROGRAMS=@PROGRAMS@
+
+CLEAN_FILES=@CLEAN_FILES@
+
+.PHONY: all compile clean bench
+.NOTPARALLEL: clean
+
+all: compile
+
+# Generate a tarball using git-archive.
+dist:
+	cd $(SRC_DIR) && \
+	git archive --format=tar --prefix=matlab2roboptim/ HEAD | \
+	 gzip > roboptim2matlab.tar.gz
+
+# If Makefile template or configure is modified, re-configure.
+Makefile: $(SRC_DIR)/configure $(SRC_DIR)/Makefile.in
+	CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" $(SRC_DIR)/configure
+
+compile: $(PROGRAMS)
+
+clean:
+	-rm -f $(CLEAN_FILES)
+
+# Execute all programs one by one and generate log files.
+bench: all
+	@for program in $(PROGRAMS); do		\
+	   echo running $${program};		\
+	   $(BUILD_DIR)/$${program}		\
+	     2>&1 > $(BUILD_DIR)/$${program}.log; \
+	done
+
+
+.%.deps:%.cc
+	@$(CXX) -M $(CPPFLAGS) $< > $@
