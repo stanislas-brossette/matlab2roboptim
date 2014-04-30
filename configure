@@ -1,0 +1,130 @@
+#!/bin/sh
+
+# Fail if any command in this shell script fails.
+set -e
+
+# List of variables to be sustituted.
+SUBST=""
+
+
+# Output related functions
+debug()
+{
+    test "x$DEBUG" = x || echo 2>&1 "debug: $@"
+}
+
+info()
+{
+    echo 2>&1 "$@"
+}
+
+warn()
+{
+    echo 2>&1 "warning: $@"
+}
+
+error()
+{
+    echo 2>&1 "error: $@"
+}
+
+fatal()
+{
+    error $@
+    exit 1
+}
+
+
+# subst VARIABLE VALUE
+#
+# set VARIABLE to VALUE, tag it so that it will be substituted.
+#
+# if value is not provided, just tag the variable.
+subst()
+{
+    case "${SUBST}" in
+	*$1*) warn $1 already substituted;;
+    esac
+
+    SUBST="$SUBST $1"
+
+    # Set the variable value if necessary.
+    test x$2 = x || eval $1="$2"
+
+    debug substituting $1 by `eval echo \\$$1`
+}
+
+
+# configure dir/file.in
+#
+# Configure a template file.
+configure()
+{
+    test -f "$SRC_DIR/$1" || fatal $1 does not exist
+    # Strip the ".in" suffix
+    filename=${1%%.in}
+
+    # Copy template (untouched)
+    cp "$SRC_DIR/$1" "$BUILD_DIR/$filename"
+
+    # Replace variables one-by-one
+    for var in $SUBST; do
+	value=`eval echo \\$$var`
+	sed  -i "s|@$var@|$value|" "$BUILD_DIR/$filename"
+    done
+
+    info Generating $filename
+}
+
+# add_program_target program-name
+#
+# Append the required rules to CUSTOM_TARGETS
+# in order to build this additional program.
+add_program_target()
+{
+    test x$1 = x && fatal add_program_target: \$1 not set
+
+    cat >> $BUILD_DIR/$MAKEFILE <<EOF
+# ${1}
+${1}: ${1}.o
+	\$(CXX) \$< \$(LDFLAGS) -o \$@
+${1}.o: $SRC_DIR/src/GeneratedFiles/${1}.cc
+	\$(CXX) \$(CPPFLAGS) \$< -c -o \$@
+-include .${1}.deps
+EOF
+    debug generating rules for $1
+}
+
+# Define BUILD_DIR (current working directory) and SRC_DIR (project
+# root).
+subst BUILD_DIR `pwd`
+
+SRC_DIR=`cd $(dirname $0) && pwd`
+subst SRC_DIR
+
+SOURCES=`find $SRC_DIR/src/GeneratedFiles -type f -and -name '*.cc'`
+subst SOURCES
+subst MAKEFILE Makefile
+
+# Pass compilation flags to Makefile.
+subst CPPFLAGS
+subst LDFLAGS
+
+# Generate custom targets.
+# One binary per .cc file.
+PROGRAMS=""
+CLEAN_FILES=""
+for source in $SOURCES; do
+    program=`basename ${source%%.cc}`
+    PROGRAMS="$PROGRAMS $program"
+    CLEAN_FILES="$CLEAN_FILES $program $program.o"
+done
+subst CLEAN_FILES
+subst PROGRAMS
+
+configure Makefile.in
+
+#FIXME: not very good.
+for program in $PROGRAMS; do
+    add_program_target $program
+done

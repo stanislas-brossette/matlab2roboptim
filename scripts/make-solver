@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if `test x$1 = x`; then
+    echo "specify a solver"
+    exit
+fi
+
+methods="Direct Lifted Trigo"
+
+for method in $methods; do
+    cp planarRobot2_${method}_cfsqp.cc planarRobot2_${method}_$1.cc
+    sed -i "s|\"cfsqp\"|\"$1\"|" planarRobot2_${method}_$1.cc
+done
