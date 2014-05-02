@@ -3,7 +3,7 @@ VPATH=@SRC_DIR@/src/GeneratedFiles/
 BUILD_DIR=@BUILD_DIR@
 SRC_DIR=@SRC_DIR@
 CPPFLAGS=@CPPFLAGS@ -ggdb3 `pkg-config --cflags roboptim-core`
-LDFLAGS=@LDFLAGS@ `pkg-config --libs roboptim-core`
+LDFLAGS=@LDFLAGS@ `pkg-config --libs roboptim-core` -lboost_system -lboost_timer
 
 PROGRAMS=@PROGRAMS@
 
